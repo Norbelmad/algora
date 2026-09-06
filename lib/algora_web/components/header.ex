@@ -39,6 +39,8 @@ defmodule AlgoraWeb.Components.Header do
         <div class="flex lg:hidden items-center gap-1">
           <button
             type="button"
+            id="theme-toggle-mobile"
+            phx-hook="ThemeToggle"
             data-theme-toggle
             class="rounded-md p-2.5 text-muted-foreground hover:text-foreground"
             aria-label="Toggle color theme"
@@ -77,6 +79,8 @@ defmodule AlgoraWeb.Components.Header do
           <%!-- Issue #222: manual theme toggle (cycles system → light → dark) --%>
           <button
             type="button"
+            id="theme-toggle-desktop"
+            phx-hook="ThemeToggle"
             data-theme-toggle
             class="rounded-md p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             aria-label="Toggle color theme"

@@ -6,7 +6,7 @@ import { getHooks } from "live_svelte";
 import * as Components from "../svelte/**/*.svelte";
 import posthog from "posthog-js";
 import "emoji-picker-element";
-import { initTheme } from "./theme";
+import { initTheme, syncToggleLabels } from "./theme";
 
 // Issue #222 — apply stored / system theme before LiveView paints UI chrome
 initTheme();
@@ -383,6 +383,15 @@ function stripHomeCandidateSwipeClasses(el: HTMLElement) {
 }
 
 const Hooks = {
+  // Issue #222 — re-sync theme toggle icons after LiveView morph/patch
+  ThemeToggle: {
+    mounted() {
+      syncToggleLabels();
+    },
+    updated() {
+      syncToggleLabels();
+    },
+  },
   Capture: {
     mounted() {
       const token = this.el.getAttribute("data-token");
@@ -1505,6 +1514,8 @@ window.addEventListener("phx:page-loading-stop", (info) => {
   clearTimeout(topBarScheduled);
   topBarScheduled = undefined;
   topbar.hide();
+  // Issue #222 — LiveView may remount header; keep theme icons in sync
+  syncToggleLabels();
 });
 
 // Accessible routing

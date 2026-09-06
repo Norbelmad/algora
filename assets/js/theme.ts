@@ -74,9 +74,14 @@ export function initTheme(): void {
 
   syncToggleLabels();
   window.addEventListener("algora:theme", () => syncToggleLabels());
+
+  // LiveView morph/patch can replace toggle DOM and reset icon visibility —
+  // re-sync after navigation / page loading completes.
+  window.addEventListener("phx:page-loading-stop", () => syncToggleLabels());
 }
 
-function syncToggleLabels(): void {
+/** Keep sun/moon icons + aria in sync with resolved theme (export for LiveView hooks). */
+export function syncToggleLabels(): void {
   const mode = getStoredTheme();
   const dark = resolveDark(mode);
   document.querySelectorAll("[data-theme-toggle]").forEach((el) => {
@@ -100,6 +105,7 @@ declare global {
       set: typeof setTheme;
       cycle: typeof cycleTheme;
       apply: typeof applyTheme;
+      sync: typeof syncToggleLabels;
     };
   }
 }
@@ -110,5 +116,6 @@ if (typeof window !== "undefined") {
     set: setTheme,
     cycle: cycleTheme,
     apply: applyTheme,
+    sync: syncToggleLabels,
   };
 }
