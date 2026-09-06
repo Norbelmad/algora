@@ -8,6 +8,8 @@ const fs = require("fs");
 const colors = require("tailwindcss/colors");
 
 module.exports = {
+  // Issue #222: class strategy so we can honor prefers-color-scheme + manual toggle
+  darkMode: "class",
   content: [
     "./js/**/*.js",
     "./js/**/*.ts",
@@ -166,6 +168,10 @@ module.exports = {
     require("@tailwindcss/typography"),
     require("tailwindcss-animate"),
     require("@tailwindcss/forms"),
+    // light: utilities when html does not have .dark (docs + dual-theme UI)
+    plugin(({ addVariant }) =>
+      addVariant("light", [":root:not(.dark) &", ":root:not(.dark)&"])
+    ),
     // Allows prefixing tailwind classes with LiveView classes to add rules
     // only when LiveView classes are applied, for example:
     //

@@ -6,6 +6,10 @@ import { getHooks } from "live_svelte";
 import * as Components from "../svelte/**/*.svelte";
 import posthog from "posthog-js";
 import "emoji-picker-element";
+import { initTheme } from "./theme";
+
+// Issue #222 — apply stored / system theme before LiveView paints UI chrome
+initTheme();
 
 // TODO: add eslint & biome
 // TODO: enable strict mode

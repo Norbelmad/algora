@@ -36,7 +36,21 @@ defmodule AlgoraWeb.Components.Header do
           <.wordmark class="h-8 w-auto text-foreground" />
         </div>
         <!-- Mobile menu button -->
-        <div class="flex lg:hidden">
+        <div class="flex lg:hidden items-center gap-1">
+          <button
+            type="button"
+            data-theme-toggle
+            class="rounded-md p-2.5 text-muted-foreground hover:text-foreground"
+            aria-label="Toggle color theme"
+            title="Toggle theme (system / light / dark)"
+          >
+            <span data-theme-icon-sun class="hidden">
+              <.icon name="tabler-sun" class="h-5 w-5" />
+            </span>
+            <span data-theme-icon-moon>
+              <.icon name="tabler-moon" class="h-5 w-5" />
+            </span>
+          </button>
           <button
             type="button"
             class="rounded-md p-2.5 text-muted-foreground hover:text-foreground"
@@ -59,7 +73,22 @@ defmodule AlgoraWeb.Components.Header do
           <% end %>
         </div>
 
-        <div class="w-full hidden lg:flex-1 lg:flex lg:justify-end gap-4">
+        <div class="w-full hidden lg:flex-1 lg:flex lg:justify-end gap-4 items-center">
+          <%!-- Issue #222: manual theme toggle (cycles system → light → dark) --%>
+          <button
+            type="button"
+            data-theme-toggle
+            class="rounded-md p-2 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            aria-label="Toggle color theme"
+            title="Toggle theme (system / light / dark)"
+          >
+            <span data-theme-icon-sun class="hidden">
+              <.icon name="tabler-sun" class="size-5" />
+            </span>
+            <span data-theme-icon-moon>
+              <.icon name="tabler-moon" class="size-5" />
+            </span>
+          </button>
           <.link
             class="flex items-center justify-center text-sm text-foreground/80 hover:text-foreground"
             href="tel:+16504202207"

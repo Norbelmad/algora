@@ -5,6 +5,23 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="csrf-token" content={get_csrf_token()} />
+    <%!-- Issue #222: prevent FOUC — honor localStorage or prefers-color-scheme before CSS --%>
+    <script>
+      (function () {
+        try {
+          var key = "algora-theme";
+          var t = localStorage.getItem(key);
+          var dark =
+            t === "dark" ||
+            ((t === "system" || !t) &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches);
+          if (t === "light") dark = false;
+          document.documentElement.classList.toggle("dark", !!dark);
+          document.documentElement.dataset.theme = t || "system";
+          document.documentElement.style.colorScheme = dark ? "dark" : "light";
+        } catch (e) {}
+      })();
+    </script>
 
     <.live_title suffix={
       assigns[:page_title_suffix] || (assigns[:page_title] && " | #{Algora.config([:title])}")
@@ -70,7 +87,7 @@
       rel="stylesheet"
     />
   </head>
-  <body class="dark">
+  <body>
     {@inner_content}
     <div
       :if={Application.get_env(:algora, :ingest_token)}
