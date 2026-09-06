@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <%!-- Issue #222: prevent FOUC — honor localStorage or prefers-color-scheme before CSS --%>
+    <%!-- Issue #222: FOUC boot — set html.dark before CSS; key "algora-theme" must match assets/js/theme.ts STORAGE_KEY --%>
     <script>
       (function () {
         try {

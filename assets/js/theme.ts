@@ -1,6 +1,8 @@
 /**
  * Theme controller for Algora (GitHub issue #222).
  * Modes: system (default) | light | dark — persisted in localStorage.
+ * Uses class darkMode on <html> (not media) so manual override works with Tailwind.
+ * STORAGE_KEY must stay in sync with the FOUC boot script in root.html.heex.
  */
 const STORAGE_KEY = "algora-theme";
 
@@ -11,7 +13,7 @@ export function getStoredTheme(): ThemeMode {
     const v = localStorage.getItem(STORAGE_KEY);
     if (v === "light" || v === "dark" || v === "system") return v;
   } catch {
-    /* ignore */
+    /* private mode / blocked storage — fall back to system */
   }
   return "system";
 }
@@ -25,6 +27,7 @@ export function resolveDark(mode: ThemeMode = getStoredTheme()): boolean {
 export function applyTheme(mode?: ThemeMode): void {
   const m = mode ?? getStoredTheme();
   const dark = resolveDark(m);
+  // Tailwind darkMode: "class" reads documentElement.dark
   document.documentElement.classList.toggle("dark", dark);
   document.documentElement.dataset.theme = m;
   document.documentElement.style.colorScheme = dark ? "dark" : "light";
@@ -51,16 +54,29 @@ export function cycleTheme(): ThemeMode {
   return next;
 }
 
+/**
+ * Wire media-query + toggle clicks once.
+ * LiveView morph: ThemeToggle hook + phx:page-loading-stop re-sync icons
+ * (do not add a second page-loading-stop listener in app.ts).
+ */
 export function initTheme(): void {
+  if ((window as unknown as { __algoraThemeInit?: boolean }).__algoraThemeInit) {
+    applyTheme();
+    syncToggleLabels();
+    return;
+  }
+  (window as unknown as { __algoraThemeInit?: boolean }).__algoraThemeInit = true;
+
   applyTheme();
+
   const mq = window.matchMedia("(prefers-color-scheme: dark)");
   const onChange = () => {
     if (getStoredTheme() === "system") applyTheme("system");
   };
   if (typeof mq.addEventListener === "function") {
     mq.addEventListener("change", onChange);
-  } else if (typeof (mq as any).addListener === "function") {
-    (mq as any).addListener(onChange);
+  } else if (typeof (mq as MediaQueryList & { addListener?: (cb: () => void) => void }).addListener === "function") {
+    (mq as MediaQueryList & { addListener: (cb: () => void) => void }).addListener(onChange);
   }
 
   document.addEventListener("click", (ev) => {
@@ -68,15 +84,14 @@ export function initTheme(): void {
     const btn = t?.closest?.("[data-theme-toggle]") as HTMLElement | null;
     if (!btn) return;
     ev.preventDefault();
+    // setTheme dispatches algora:theme → syncToggleLabels via listener below
     cycleTheme();
-    syncToggleLabels();
   });
 
   syncToggleLabels();
   window.addEventListener("algora:theme", () => syncToggleLabels());
 
-  // LiveView morph/patch can replace toggle DOM and reset icon visibility —
-  // re-sync after navigation / page loading completes.
+  // LiveView navigation remounts header DOM — re-apply icon visibility
   window.addEventListener("phx:page-loading-stop", () => syncToggleLabels());
 }
 
@@ -97,7 +112,6 @@ export function syncToggleLabels(): void {
   });
 }
 
-// Expose for inline onclick / LiveView if needed
 declare global {
   interface Window {
     AlgoraTheme?: {

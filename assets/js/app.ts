@@ -8,7 +8,7 @@ import posthog from "posthog-js";
 import "emoji-picker-element";
 import { initTheme, syncToggleLabels } from "./theme";
 
-// Issue #222 — apply stored / system theme before LiveView paints UI chrome
+// Issue #222 — class darkMode + FOUC boot; init owns media/click/phx sync
 initTheme();
 
 // TODO: add eslint & biome
@@ -1514,8 +1514,6 @@ window.addEventListener("phx:page-loading-stop", (info) => {
   clearTimeout(topBarScheduled);
   topBarScheduled = undefined;
   topbar.hide();
-  // Issue #222 — LiveView may remount header; keep theme icons in sync
-  syncToggleLabels();
 });
 
 // Accessible routing

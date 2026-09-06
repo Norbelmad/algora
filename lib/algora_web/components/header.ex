@@ -37,6 +37,7 @@ defmodule AlgoraWeb.Components.Header do
         </div>
         <!-- Mobile menu button -->
         <div class="flex lg:hidden items-center gap-1">
+          <%!-- Issue #222: ThemeToggle hook re-syncs icons after LiveView morph --%>
           <button
             type="button"
             id="theme-toggle-mobile"
